@@ -49,3 +49,19 @@ def myCommand():
         command = myCommand()
 
     return command
+
+def tars(command):
+    # List of error messages to use if the command is not recognized
+    errors=[
+        "I don't know what you mean",
+        "Excuse me?",
+        "Can you repeat it please?",
+    ]
+    # TODO: Add if statements here for executing commands based on the input 'command'
+    # For example:
+    # if command == 'greet':
+    #     print('Hello!')
+    # elif command == 'goodbye':
+    #     print('Goodbye!')
+    # else:
+    #     print(random.choice(errors))
