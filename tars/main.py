@@ -1,3 +1,4 @@
+import random
 import time
 from gtts import gTTS  # Google Text-to-Speech
 import speech_recognition as sr  # Speech recognition library
@@ -57,11 +58,16 @@ def tars(command):
         "Excuse me?",
         "Can you repeat it please?",
     ]
-    # TODO: Add if statements here for executing commands based on the input 'command'
-    # For example:
-    # if command == 'greet':
-    #     print('Hello!')
-    # elif command == 'goodbye':
-    #     print('Goodbye!')
-    # else:
-    #     print(random.choice(errors))
+    # if statements for executing commands based on the input 'command'
+    if command == 'greet' // command == 'hello' // command == 'hi':
+        talk('Hello! I am TARS. How can I help you?')
+    elif command == 'goodbye':
+        talk('Goodbye!')
+    else:
+        talk(random.choice(errors))
+    
+talk('TARS is ready!')
+
+#loop to continue executing multiple commands
+while True:
+    tars(myCommand())
