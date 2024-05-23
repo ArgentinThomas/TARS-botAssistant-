@@ -1,5 +1,9 @@
-import random
-import time
+# Importing necessary libraries
+import random  # For generating random numbers
+import re  # For regular expression operations
+import time  # For time-related tasks
+from selenium import webdriver  # For web automation tasks
+from selenium.webdriver.common.keys import Keys  # For keyboard key constants
 from gtts import gTTS  # Google Text-to-Speech
 import speech_recognition as sr  # Speech recognition library
 from pygame import mixer  # Pygame mixer for playing audio
@@ -58,16 +62,49 @@ def tars(command):
         "Excuse me?",
         "Can you repeat it please?",
     ]
+
     # if statements for executing commands based on the input 'command'
     if command == 'greet' // command == 'hello' // command == 'hi':
         talk('Hello! I am TARS. How can I help you?')
+
     elif command == 'goodbye':
         talk('Goodbye!')
+
+    # If the command is 'open google and search'
+    elif command == 'open google and search':
+        # Use regular expression to find the search term in the command
+        reg_ex = re.search("open google and search (.*)", command)
+        # Split the command to get the search term
+        search_for = command.split("search", 1)[1]
+        print(search_for)
+        # Base URL for Google
+        url = "https://www.google.com/"
+        # If the regular expression found a match
+        if reg_ex:
+            # Get the matched group
+            subgoogle = reg_ex.group(1)
+            # Append the matched group to the URL
+            url = url + "r/" + subgoogle
+        # Use the talk function to say "Okay!"
+        talk("Okay!")
+        # Initialize the Firefox webdriver
+        driver = webdriver.Firefox(executable_path="/path/to/geckodriver")
+        # Open Google's homepage
+        driver.get("http://www.google.com")
+        # Find the search box element by its name
+        search = driver.find_element_by_name("q")
+        # Enter the search term into the search box
+        search.send_keys(str(search_for))
+        # Press the RETURN key to submit the search
+        search.send_keys(Keys.RETURN)  # hit return after you enter search text        
+    # If the command is not recognized
     else:
+        # Use the talk function to say a random error message
         talk(random.choice(errors))
     
-talk('TARS is ready!')
+talk("TARS activated!")
 
-#loop to continue executing multiple commands
+# loop to continue executing multiple commands
 while True:
+    time.sleep(4)
     tars(myCommand())
