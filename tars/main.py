@@ -125,7 +125,6 @@ def tars(command):
         reg_ex = re.search("open google and search (.*)", command)
         # Split the command to get the search term
         search_for = command.split("search", 1)[1].strip()
-        print(search_for)
         # Use the talk function to say "Okay!"
         talk("Okay!")
         # Announce what the bot is searching for
