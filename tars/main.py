@@ -8,21 +8,37 @@ from selenium.webdriver.common.keys import Keys  # For keyboard key constants
 from gtts import gTTS  # Google Text-to-Speech
 import speech_recognition as sr  # Speech recognition library
 from pygame import mixer  # Pygame mixer for playing audio
+import os  # For file operations
+from datetime import datetime  # For generating unique filenames
+import threading  # For threading operations
 
 # Initialize the mixer
 mixer.init()
+
+def play_audio(filename):
+    # Load the audio file
+    mixer.music.load(filename)
+    # Play the audio file
+    mixer.music.play()
+    # Wait until the audio finishes playing
+    while mixer.music.get_busy():
+        time.sleep(1)
+    # Unload the audio file
+    mixer.music.unload()
+    # Remove the audio file
+    os.remove(filename)
 
 # Function to convert text to speech and play it
 def talk(audio):
     print(audio)
     # Convert the text to speech
     text_to_speech = gTTS(text=audio, lang='en-uk')
+    # Generate a unique filename using the current timestamp
+    filename = f"audio_{datetime.now().strftime('%Y%m%d%H%M%S')}.mp3"
     # Save the speech audio into a file
-    text_to_speech.save('audio.mp3')
-    # Load the audio file
-    mixer.music.load("audio.mp3")
-    # Play the audio file
-    mixer.music.play()
+    text_to_speech.save(filename)
+    # Start a new thread to play the audio file
+    threading.Thread(target=play_audio, args=(filename,)).start()
 
 # Function to listen for voice commands
 def myCommand():
@@ -36,26 +52,31 @@ def myCommand():
         r.pause_threshold = 1
         # Adjust the recognizer sensitivity to ambient noise and record audio
         r.adjust_for_ambient_noise(source, duration=1)
+        print("Listening...")
         # Record audio from the microphone
         audio = r.listen(source)
-        print("analyzing...")
+        print("Analyzing...")
 
     try:
         # Recognize speech using Google Speech Recognition
         command = r.recognize_google(audio).lower()
         print("You said: " + command + "\n")
-        # Pause before the next command
-        time.sleep(2)
+        return command
 
-    # Exception handling for unrecognized speech
+    except sr.RequestError:
+        # API was unreachable or unresponsive
+        print("API unavailable")
+        return None
+
     except sr.UnknownValueError:
+        # Speech was unintelligible
         print("Your last command couldn't be heard")
-        # If the speech is not recognized, repeat the listening process
-        command = myCommand()
-
-    return command
+        return None
 
 def tars(command):
+    if command is None:
+        return
+
     # List of error messages to use if the command is not recognized
     errors = [
         "I don't know what you mean",
@@ -99,4 +120,6 @@ talk("TARS activated!")
 # loop to continue executing multiple commands
 while True:
     time.sleep(4)
-    tars(myCommand())
+    command = myCommand()
+    if command:
+        tars(command)
