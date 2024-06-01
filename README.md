@@ -6,6 +6,7 @@ TARS is an advanced bot assistant inspired by the TARS AI from the Interstellar 
 
 TARS can perform the following tasks:
 - Open websites
+- Greet users and more
 
 ## TO-DO
 
@@ -14,7 +15,6 @@ TARS will perform the following tasks:
 - Send emails
 - Search and read content from Wikipedia
 - Provide weather forecasts
-- Greet users and more
 
 ## Prerequisites
 
