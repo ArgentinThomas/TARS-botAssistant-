@@ -11,22 +11,31 @@ from pygame import mixer  # Pygame mixer for playing audio
 import os  # For file operations
 from datetime import datetime  # For generating unique filenames
 import threading  # For threading operations
+import sys  # For system operations
+from selenium.common.exceptions import WebDriverException  # For handling WebDriver exceptions
 
 # Initialize the mixer
 mixer.init()
 
 def play_audio(filename):
-    # Load the audio file
-    mixer.music.load(filename)
-    # Play the audio file
-    mixer.music.play()
-    # Wait until the audio finishes playing
-    while mixer.music.get_busy():
-        time.sleep(1)
-    # Unload the audio file
-    mixer.music.unload()
-    # Remove the audio file
-    os.remove(filename)
+    try:
+        # Load the audio file
+        mixer.music.load(filename)
+        # Play the audio file
+        mixer.music.play()
+        # Wait until the audio finishes playing
+        while mixer.music.get_busy():
+            time.sleep(1)
+    except Exception as e:
+        print(f"Error playing audio: {e}")
+    finally:
+        # Unload the audio file
+        mixer.music.unload()
+        # Ensure the file is removed
+        try:
+            os.remove(filename)
+        except Exception as e:
+            print(f"Error removing audio file: {e}")
 
 # Function to convert text to speech and play it
 def talk(audio):
@@ -38,7 +47,9 @@ def talk(audio):
     # Save the speech audio into a file
     text_to_speech.save(filename)
     # Start a new thread to play the audio file
-    threading.Thread(target=play_audio, args=(filename,)).start()
+    audio_thread = threading.Thread(target=play_audio, args=(filename,))
+    audio_thread.start()
+    audio_thread.join()  # Ensure the audio thread completes before proceeding
 
 # Function to listen for voice commands
 def myCommand():
@@ -73,6 +84,36 @@ def myCommand():
         print("Your last command couldn't be heard")
         return None
 
+def open_browser_and_search(search_for):
+    # Base URL for Google
+    url = "https://www.google.com/search?q=" + search_for
+    # Initialize the Firefox webdriver
+    driver = webdriver.Firefox()  # Assumes geckodriver is in PATH
+    # Open the constructed Google search URL
+    driver.get(url)
+    
+    try:
+        # Wait until the browser window is closed by the user
+        while True:
+            try:
+                if not driver.window_handles:
+                    break
+            except WebDriverException:
+                # Handle the case where the browser window is already closed
+                break
+            time.sleep(1)
+    finally:
+        driver.quit()
+
+def remove_audio_files():
+    # Remove all .mp3 files in the directory
+    for filename in os.listdir():
+        if filename.endswith(".mp3"):
+            try:
+                os.remove(filename)
+            except Exception as e:
+                print(f"Error removing file {filename}: {e}")
+
 def tars(command):
     if command is None:
         return
@@ -90,6 +131,9 @@ def tars(command):
 
     elif command == 'goodbye':
         talk('Goodbye!')
+        time.sleep(2)  # Give time to play the goodbye message
+        remove_audio_files()  # Remove audio files before exiting
+        sys.exit()
 
     # If the command is 'open google and search'
     elif 'open google and search' in command:
@@ -98,18 +142,14 @@ def tars(command):
         # Split the command to get the search term
         search_for = command.split("search", 1)[1].strip()
         print(search_for)
-        # Base URL for Google
-        url = "https://www.google.com/search?q=" + search_for
         # Use the talk function to say "Okay!"
         talk("Okay!")
-        # Initialize the Firefox webdriver
-        driver = webdriver.Firefox()  # Assumes geckodriver is in PATH
-        # Open the constructed Google search URL
-        driver.get(url)
-        # Wait for a few seconds to see the results
-        time.sleep(5)
-        # Close the browser
-        driver.quit()
+        # Announce what the bot is searching for
+        talk(f"I started to search for {search_for}")
+        # Start a new thread to open the browser and search
+        browser_thread = threading.Thread(target=open_browser_and_search, args=(search_for,))
+        browser_thread.start()
+        browser_thread.join()  # Wait for the browser thread to finish
     # If the command is not recognized
     else:
         # Use the talk function to say a random error message
