@@ -1,3 +1,5 @@
+# main.py
+
 # Importing necessary libraries
 import random  # For generating random numbers
 import re  # For regular expression operations
@@ -13,6 +15,9 @@ from datetime import datetime  # For generating unique filenames
 import threading  # For threading operations
 import sys  # For system operations
 from selenium.common.exceptions import WebDriverException  # For handling WebDriver exceptions
+
+# Importing custom modules
+from web_search import open_browser_and_search
 
 # Initialize the mixer
 mixer.init()
@@ -83,27 +88,6 @@ def myCommand():
         # Speech was unintelligible
         print("Your last command couldn't be heard")
         return None
-
-def open_browser_and_search(search_for):
-    # Base URL for Google
-    url = "https://www.google.com/search?q=" + search_for
-    # Initialize the Firefox webdriver
-    driver = webdriver.Firefox()  # Assumes geckodriver is in PATH
-    # Open the constructed Google search URL
-    driver.get(url)
-    
-    try:
-        # Wait until the browser window is closed by the user
-        while True:
-            try:
-                if not driver.window_handles:
-                    break
-            except WebDriverException:
-                # Handle the case where the browser window is already closed
-                break
-            time.sleep(1)
-    finally:
-        driver.quit()
 
 def remove_audio_files():
     # Remove all .mp3 files in the directory
