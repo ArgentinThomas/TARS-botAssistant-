@@ -9,7 +9,7 @@ TARS can perform the following tasks:
 
 ## TO-DO
 
-TARS willperform the following tasks:
+TARS will perform the following tasks:
 - Search and play videos on YouTube
 - Send emails
 - Search and read content from Wikipedia
