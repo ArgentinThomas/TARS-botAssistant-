@@ -17,7 +17,8 @@ import sys  # For system operations
 from selenium.common.exceptions import WebDriverException  # For handling WebDriver exceptions
 
 # Importing custom modules
-from web_search import open_browser_and_search
+from tars.web_search import open_browser_and_search
+from tars.wiki_search import search_wikipedia  # Import the Wikipedia search function
 
 # Initialize the mixer
 mixer.init()
@@ -133,6 +134,20 @@ def tars(command):
         browser_thread = threading.Thread(target=open_browser_and_search, args=(search_for,))
         browser_thread.start()
         browser_thread.join()  # Wait for the browser thread to finish
+
+    # If the command is 'search in wikipedia'
+    elif 'wikipedia' in command:
+        # Use regular expression to find the search term in the command
+        reg_ex = re.search('wikipedia (.+)', command)
+        if reg_ex:
+            query = command.split("wikipedia", 1)[1].strip()
+            # Announce what the bot is searching for
+            talk(f"I started to search for {query} in Wikipedia")
+            # Start a new thread to search Wikipedia
+            wiki_thread = threading.Thread(target=search_wikipedia, args=(query,))
+            wiki_thread.start()
+            wiki_thread.join()  # Wait for the wiki thread to finish
+
     # If the command is not recognized
     else:
         # Use the talk function to say a random error message
